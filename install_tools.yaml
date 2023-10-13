@@ -1,0 +1,81 @@
+---
+- name: Clone Git Repositories and Download Files
+  hosts: localhost
+  gather_facts: yes
+
+  vars:
+    base_dest: /home/kali/Documents/Tools  # Base destination directory
+    git_repositories:
+      - name: RustScan
+        url: https://github.com/RustScan/RustScan
+        subdirectory: rustscan  # Subdirectory
+
+    wget_repositories:
+      - name: ssh2john
+        url: https://raw.githubusercontent.com/openwall/john/bleeding-jumbo/run/ssh2john.py
+        subdirectory: ssh2john  # Subdirectory
+        filename: ssh2john.py  # Specify the filename here
+
+      - name: linpeas
+        url: https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh
+        subdirectory: linpeas  # Subdirectory
+        filename: linpeas.sh  # Specify the filename here
+
+      - name: winpeas
+        url: https://raw.githubusercontent.com/carlospolop/PEASS-ng/master/winPEAS/winPEASbat/winPEAS.bat
+        subdirectory: winpeas  # Subdirectory
+        filename: winPEAS.bat # Specify the filename here
+
+      - name: winpeas
+        url: https://github.com/carlospolop/PEASS-ng/releases/latest/download/winPEASany_ofs.exe
+        subdirectory: winpeas  # Subdirectory
+        filename: winPEAS.exe # Specify the filename here
+
+      - name: winpeas
+        url: https://raw.githubusercontent.com/carlospolop/PEASS-ng/master/winPEAS/winPEASps1/winPEAS.ps1
+        subdirectory: winpeas  # Subdirectory
+        filename: winPEAS.ps1 # Specify the filename here
+
+      - name: kerbrute
+        url: https://github.com/ropnop/kerbrute/releases/download/v1.0.3/kerbrute_linux_amd64
+        subdirectory: kerbrute  # Subdirectory
+        filename: kerbrute_linux_amd64 # Specify the filename here
+
+      - name: kerbrute
+        url: https://github.com/ropnop/kerbrute/releases/download/v1.0.3/kerbrute_windows_amd64.exe
+        subdirectory: kerbrute  # Subdirectory
+        filename: kerbrute_windows_amd64.exe # Specify the filename here
+
+      - name: ADRecon
+        url: https://raw.githubusercontent.com/sense-of-security/ADRecon/master/ADRecon.ps1
+        subdirectory: adreconn  # Subdirectory
+        filename: adreconn.ps1 # Specify the filename here
+
+      - name: LAPSDumper
+        url: https://raw.githubusercontent.com/n00py/LAPSDumper/main/laps.py
+        subdirectory: lapsdumper  # Subdirectory
+        filename: laps.py # Specify the filename here
+
+      - name: PSTools
+        url: https://download.sysinternals.com/files/PSTools.zip
+        subdirectory: pstools  # Subdirectory
+        filename: PSTools.zip # Specify the filename here
+
+      - name: Gqrx
+        url: https://github.com/gqrx-sdr/gqrx/releases/download/v2.17/Gqrx-2.17-x86_64.AppImage
+        subdirectory: gqrx  # Subdirectory
+        filename: Gqrx-2.17-x86_64.AppImage # Specify the filename here
+
+  tasks:
+    - name: Clone Git Repositories
+      git:
+        repo: "{{ item.url }}"
+        dest: "{{ base_dest }}/{{ item.subdirectory }}"
+        version: master  # You can specify the branch/tag here if needed
+      with_items: "{{ git_repositories }}"
+
+    - name: Create Subdirectories and Download Files with wget
+      shell: |
+        mkdir -p "{{ base_dest }}/{{ item.subdirectory }}"
+        wget "{{ item.url }}" -O "{{ base_dest }}/{{ item.subdirectory }}/{{ item.filename }}"
+      with_items: "{{ wget_repositories }}"
