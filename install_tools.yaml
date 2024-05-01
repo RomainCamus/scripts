@@ -4,12 +4,12 @@
   gather_facts: yes
 
   vars:
-    base_dest: /home/kali/Documents/Tools  # Base destination directory
+    base_dest: /home/rom/Documents/Tools  # Base destination directory
     git_repositories:
       - name: RustScan
         url: https://github.com/RustScan/RustScan
         subdirectory: rustscan  # Subdirectory
-
+      
     wget_repositories:
       - name: ssh2john
         url: https://raw.githubusercontent.com/openwall/john/bleeding-jumbo/run/ssh2john.py
@@ -23,17 +23,17 @@
 
       - name: winpeas
         url: https://raw.githubusercontent.com/carlospolop/PEASS-ng/master/winPEAS/winPEASbat/winPEAS.bat
-        subdirectory: winpeas  # Subdirectory
+        subdirectory: Windows_Local_Privilege_Escalation/winpeas  # Subdirectory
         filename: winPEAS.bat # Specify the filename here
 
       - name: winpeas
         url: https://github.com/carlospolop/PEASS-ng/releases/latest/download/winPEASany_ofs.exe
-        subdirectory: winpeas  # Subdirectory
+        subdirectory: Windows_Local_Privilege_Escalation/winpeas  # Subdirectory
         filename: winPEAS.exe # Specify the filename here
 
       - name: winpeas
         url: https://raw.githubusercontent.com/carlospolop/PEASS-ng/master/winPEAS/winPEASps1/winPEAS.ps1
-        subdirectory: winpeas  # Subdirectory
+        subdirectory: Windows_Local_Privilege_Escalation/winpeas  # Subdirectory
         filename: winPEAS.ps1 # Specify the filename here
 
       - name: kerbrute
@@ -66,16 +66,69 @@
         subdirectory: gqrx  # Subdirectory
         filename: Gqrx-2.17-x86_64.AppImage # Specify the filename here
 
+      #Windows Local Privilege Escalation
+      - name: windows-local-privilege-escalation
+        url: https://book.hacktricks.xyz/windows-hardening/windows-local-privilege-escalation
+        subdirectory: Windows_Local_Privilege_Escalation  # Subdirectory
+        filename: hacktricks-windows-local-privilege-escalation.html # Specify the filename here
+
+      - name: Access-token
+        url: https://book.hacktricks.xyz/windows-hardening/windows-local-privilege-escalation/access-tokens
+        subdirectory: Windows_Local_Privilege_Escalation/Access-token  # Subdirectory
+        filename: access-tokens.html # Specify the filename here
+
+      - name: integrity-levels
+        url: https://book.hacktricks.xyz/windows-hardening/windows-local-privilege-escalation/integrity-levels
+        subdirectory: Windows_Local_Privilege_Escalation/integrity-levels  # Subdirectory
+        filename: integrity-levels.html # Specify the filename here
+        
+      - name: Abusing-Token
+        url: https://book.hacktricks.xyz/windows-hardening/windows-local-privilege-escalation/privilege-escalation-abusing-tokens
+        subdirectory: Windows_Local_Privilege_Escalation/Abusing-token  # Subdirectory
+        filename: abusing-tokens.html # Specify the filename here
+                                    
+      - name: EnableAllTokenPrivs
+        url: https://raw.githubusercontent.com/fashionproof/EnableAllTokenPrivs/master/EnableAllTokenPrivs.ps1
+        subdirectory: Windows_Local_Privilege_Escalation/Abusing-token/EnableAllTokenPrivs  # Subdirectory
+        filename: EnableAllTokenPrivs.ps1 # Specify the filename here        
+
+      - name: Acl-FullControl
+        url: https://raw.githubusercontent.com/Hackplayers/PsCabesha-tools/master/Privesc/Acl-FullControl.ps1
+        subdirectory: Windows_Local_Privilege_Escalation/Abusing-token/Token_Privileges/SeBackupPrivilege/Acl-FullControl  # Subdirectory
+        filename: Acl-FullControl.ps1 # Specify the filename here
+ 
+      - name: SeDebugPrivilege-Exploit-powershell
+        url: https://raw.githubusercontent.com/decoder-it/psgetsystem/master/psgetsys.ps1
+        subdirectory: Windows_Local_Privilege_Escalation/Abusing-token/Token_Privileges/SeDebugPrivilege-Exploit/powershell  # Subdirectory
+        filename: psgetsys.ps1 # Specify the filename here
+
+      - name: SeDebugPrivilege-Exploit-csharp
+        url: https://github.com/daem0nc0re/PrivFu/archive/refs/heads/main.zip
+        subdirectory: Windows_Local_Privilege_Escalation/Abusing-token/Token_Privileges/SeDebugPrivilege-Exploit/csharp  # Subdirectory
+        filename: PrivilegedOperations.zip # Specify the filename here
+
+      - name: SeDebugPrivilege-Exploit-c++
+        url: https://github.com/bruno-1337/SeDebugPrivilege-Exploit/archive/refs/heads/main.zip
+        subdirectory: Windows_Local_Privilege_Escalation/Abusing-token/Token_Privileges/SeDebugPrivilege-Exploit/c++  # Subdirectory
+        filename: SeDebugPrivilege-Exploit-c.zip # Specify the filename here
+
+      - name: Priv2Admin
+        url: https://github.com/gtworek/Priv2Admin/archive/refs/heads/master.zip
+        subdirectory: Windows_Local_Privilege_Escalation/Abusing-token/Token_Privileges/Priv2Admin  # Subdirectory
+        filename: Priv2Admin.zip # Specify the filename here
+        
+               
   tasks:
     - name: Clone Git Repositories
       git:
         repo: "{{ item.url }}"
         dest: "{{ base_dest }}/{{ item.subdirectory }}"
         version: master  # You can specify the branch/tag here if needed
-      with_items: "{{ git_repositories }}"
+      loop: "{{ git_repositories }}"
 
     - name: Create Subdirectories and Download Files with wget
-      shell: |
-        mkdir -p "{{ base_dest }}/{{ item.subdirectory }}"
-        wget "{{ item.url }}" -O "{{ base_dest }}/{{ item.subdirectory }}/{{ item.filename }}"
-      with_items: "{{ wget_repositories }}"
+      command: >
+        sh -c 'mkdir -p "{{ base_dest }}/{{ item.subdirectory }}" &&
+        wget "{{ item.url }}" -O "{{ base_dest }}/{{ item.subdirectory }}/{{ item.filename }}"'
+      loop: "{{ wget_repositories }}"
+      
