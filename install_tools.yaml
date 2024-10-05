@@ -5,6 +5,10 @@
 
   vars:
     base_dest: /home/rom/Documents/Tools  # Base destination directory
+
+    packages_list:
+      - ansible
+
     git_repositories:
       - name: RustScan
         url: https://github.com/RustScan/RustScan
@@ -132,3 +136,13 @@
         wget "{{ item.url }}" -O "{{ base_dest }}/{{ item.subdirectory }}/{{ item.filename }}"'
       loop: "{{ wget_repositories }}"
       
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install packages from the list
+      apt:
+        name: "{{ item }}"
+        state: present
+      loop: "{{ packages_list }}"
