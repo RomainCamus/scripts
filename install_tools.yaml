@@ -146,3 +146,20 @@
         name: "{{ item }}"
         state: present
       loop: "{{ packages_list }}"
+
+    - name: Install Package using Go
+      shell: |
+        source /etc/profile && go install github.com/hakluke/hakrawler@latest 
+      args:
+        executable: /bin/bash
+
+    - name: Ensure Go bin path is added to ~/.bashrc for persistence
+      lineinfile:
+        path: ~/.bashrc
+        state: present
+        line: 'export PATH="~/go/bin/:$PATH"'
+
+    - name: Source bashrc to update the environment
+      shell: source ~/.bashrc
+      args:
+        executable: /bin/bash
